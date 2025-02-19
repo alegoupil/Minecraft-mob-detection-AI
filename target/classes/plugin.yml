@@ -1,0 +1,11 @@
+name: MobImages
+version: '1.0.0'
+main: me.antoinelegoupil.mobImages.MobImages
+api-version: '1.21'
+commands:
+  randomstats:
+    description: "Sets your health and hunger to a random amount and gives random items"
+    usage: "/randomstats"
+  spawnpig:
+    description: "Spawns a frozen pig"
+    usage: "/spawnpig"
