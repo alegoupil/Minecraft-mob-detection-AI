@@ -1,0 +1,8 @@
+- heure random de la journée
+
+- rotation random du cochon
+- hashlineofsight() à voir comment ça fonctionne (derrière un bloc ? 360° ? Si pas sur l'écran true quand même, c'est utilisé sur les mobs qui peuvent te voir de dos)
+- je vois à environ 50° à gauche et à droite et 30° en hauteur (fov normal)
+- generer une direction dans le field of view et voir s'il y a un bloc dans la distance max de rendu où mettre le mob (72 blocs max)
+- mettre la tete du player à 0° en hauteur et random sur les cotes
+- crop le bas de l'image (donc limiter la génération à au dessus)

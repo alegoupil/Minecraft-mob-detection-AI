@@ -8,7 +8,7 @@ public final class MobImages extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         getCommand("randomstats").setExecutor(new RandomStatsCommand());
-        getCommand("spawnpig").setExecutor(new MobSpawingCommand());
+        getCommand("spawnpig").setExecutor(new MobSpawningCommand());
     }
 
     @Override

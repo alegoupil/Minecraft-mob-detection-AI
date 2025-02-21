@@ -9,13 +9,13 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-public class MobSpawingCommand implements CommandExecutor {
+public class MobSpawingCommand2 implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            
+
             // Get the player's location and direction
             Location location = player.getLocation();
             Vector direction = location.getDirection().normalize().multiply(2); // Move 2 blocks in front
