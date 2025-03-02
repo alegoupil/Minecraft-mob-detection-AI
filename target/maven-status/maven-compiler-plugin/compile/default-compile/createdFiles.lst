@@ -1,4 +1,8 @@
-me\antoinelegoupil\mobImages\MobSpawningCommand.class
+me\antoinelegoupil\mobImages\MainCommand.class
 me\antoinelegoupil\mobImages\RandomStatsCommand.class
-me\antoinelegoupil\mobImages\MobSpawingCommand2.class
+me\antoinelegoupil\mobImages\MobSpawingCommand.class
 me\antoinelegoupil\mobImages\MobImages.class
+me\antoinelegoupil\mobImages\TestCommand.class
+me\antoinelegoupil\mobImages\PigSpawningCommand.class
+me\antoinelegoupil\mobImages\RandomTPCommand.class
+me\antoinelegoupil\mobImages\SpawnChecker.class

@@ -8,4 +8,13 @@ commands:
     usage: "/randomstats"
   spawnpig:
     description: "Spawns a frozen pig"
-    usage: "/spawnpig"
+    usage: "/spawnpig [numberOfPigs]"
+  test:
+    usage: "/test"
+  spawnmobs:
+    usage: "/spawnmobs [numberOfMob]"
+  tpr:
+    description: "Teleport the player to a random location"
+    usage: "/tpr"
+  main:
+    usage: "/main"

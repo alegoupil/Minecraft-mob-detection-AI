@@ -68,5 +68,12 @@
             <version>1.21.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>me.antoinelegoupil.server</groupId>
+            <artifactId>paper-1.21.4</artifactId>
+            <version>1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/paper-1.21.4.jar</systemPath>
+        </dependency>
     </dependencies>
 </project>
