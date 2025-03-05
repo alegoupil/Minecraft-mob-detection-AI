@@ -9,6 +9,8 @@ IMAGE_DIR = "./images/"  # Change this to your actual image directory
 df = pd.read_csv(CSV_PATH)
 
 old_image = None
+start_image = 180
+current_image = 0
 
 # Loop through each row and draw the bounding boxes
 for _, row in df.iterrows():
@@ -19,12 +21,14 @@ for _, row in df.iterrows():
     x_max = x_min + width
 
     if filename != old_image:
+        current_image += 1
         if old_image != None:
-            # Show the image
-            cv2.imshow("Labeled Image", image)
-            # Wait for key press
-            key = cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            if current_image > start_image:
+                # Show the image
+                cv2.imshow("Labeled Image", image)
+                # Wait for key press
+                key = cv2.waitKey(0)
+                cv2.destroyAllWindows()
         old_image = filename
         image_path = IMAGE_DIR + filename
         image = cv2.imread(image_path)

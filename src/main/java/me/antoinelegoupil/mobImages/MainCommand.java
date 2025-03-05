@@ -1,11 +1,13 @@
 package me.antoinelegoupil.mobImages;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -28,33 +30,35 @@ import java.util.List;
 public class MainCommand implements CommandExecutor {
 
     private final static String PATH = "C:/Users/Antoi/IdeaProjects/MobImages";
+    private final static int MINMOB = 1;
+    private final static int MAXMOB = 10;
+    private final static int MOBINCREASE = 1;
+    private final static float MINYAW = 0.0f;
+    private final static float MAXYAW = 360f;
+    private final static float YAWINCREASE = 20f;
+    private final static float DEFAULTPITCH = 0.0f;
 
     private Plugin plugin;
+    private boolean stop = false;
 
     public MainCommand(Plugin plugin) {
         this.plugin = plugin;
     }
 
+    public void stopCommand() {
+        this.stop = true;
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         if (sender instanceof Player) {
-            float yaw = 0.0f;
+            stop = false;
 
             Player player = (Player) sender;
 
-            player.setRotation(yaw, 0.0f);
-//            playerLocation.setYaw(yaw);
-//            playerLocation.setPitch(0.0f);
-//            player.teleport(playerLocation);
+            RandomTPCommand randomTPCommand = new RandomTPCommand();
 
-
-            //make sure that the rotation is done
-            // IL FAUT FIX LES BOITES NE PAS OUBLIER VOIR MESSAGE AVEC STEVEN
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                spawnAndWrite(player, 1, 1);
-            }, 2L);
-
-
+            TPThenTurn(player);
         } else {
             sender.sendMessage("§cOnly players can use this command.");
         }
@@ -62,10 +66,64 @@ public class MainCommand implements CommandExecutor {
         return true;
     }
 
-    private void spawnAndWrite(Player player, int mobNum, int maxMob) {
-        if (mobNum > maxMob) {
+    private void TPThenTurn(Player player) {
+        if (stop) {
             return;
         }
+        World world = player.getWorld();
+        RandomTPCommand randomTPCommand = new RandomTPCommand();
+
+        Location randomLocation = randomTPCommand.getSafeRandomLocation(world);
+        if (randomLocation != null) {
+            player.teleport(randomLocation);
+        }
+
+        Bukkit.getScheduler().runTaskTimer(plugin, task -> {
+            int renderDistance = Bukkit.getViewDistance() - 3; // Server-defined render distance
+            boolean allChunksLoaded = true;
+
+            for (int dx = -renderDistance; dx <= renderDistance; dx++) {
+                for (int dz = -renderDistance; dz <= renderDistance; dz++) {
+                    Chunk chunk = world.getChunkAt(player.getChunk().getX() + dx, player.getChunk().getZ() + dz);
+                    if (chunk.isGenerated() && chunk.isLoaded() && !chunk.getPlayersSeeingChunk().contains(player)) {
+                        allChunksLoaded = false;
+                        break;
+                    }
+                }
+                if (!allChunksLoaded) break;
+            }
+
+            if (allChunksLoaded) {
+                task.cancel();
+                System.out.println("All visible chunks are loaded!");
+                turnThenSpawn(player, MINYAW);
+            }
+        }, 1L, 10L); // Check every 10 ticks
+    }
+
+    private void turnThenSpawn(Player player, float yaw) {
+        if (yaw >= MAXYAW || stop) {
+            TPThenTurn(player);
+            return;
+        }
+        System.out.println("Turning player " + yaw);
+        player.setRotation(yaw, DEFAULTPITCH);
+        Bukkit.getScheduler().runTaskTimer(plugin, task -> {
+            if (((player.getYaw() % 360 + 360) % 360) != ((yaw % 360 + 360) % 360)) { //Improved modulo for negatives angles
+//                System.out.println("Player " + ((player.getYaw() % 360 + 360) % 360) + " target " + ((yaw % 360 + 360) % 360));
+            } else {
+                task.cancel();
+                spawnAndWrite(player, MINMOB, yaw);
+            }
+        }, 0L, 1L);
+    }
+
+    private void spawnAndWrite(Player player, int mobNum, float yaw) {
+        if (mobNum > MAXMOB || stop) {
+            turnThenSpawn(player, yaw + YAWINCREASE);
+            return;
+        }
+        System.out.println("Spawning mob " + mobNum);
         Location playerLocation = player.getLocation();
         Location eyeLocation = player.getEyeLocation();
         Vector eyeDirection = eyeLocation.getDirection();
@@ -80,15 +138,19 @@ public class MainCommand implements CommandExecutor {
         String timestamp = String.valueOf(System.currentTimeMillis()); // current time in milliseconds
         String fileName = "screenshot_" + player.getName() + "_" + timestamp + ".png";
 
+        //Il peut y avoir des pb de chargements, jsp trop les raisons, je suppose que c'est pour ça que j'ai mis le runLater mais j'aime pas trop. Si possible remplacer par runTaskTimer + condition
+
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             takeScreenshot(fileName);
-            spawnAndWrite(player, mobNum + 1, maxMob);
+            System.out.println("Saved screenshot " + fileName);
+            spawnAndWrite(player, mobNum + MOBINCREASE, yaw);
         }, 2L);
 
         writeToCSV(mobSpawned, mobSpawingCommand, fileName);
     }
 
-    private static void writeToCSV(HashMap<Mob, HashMap<Vector, Boolean>> mobSpawned, MobSpawingCommand mobSpawingCommand, String fileName) {
+    private static void writeToCSV(HashMap<Mob, HashMap<Vector, Boolean>> mobSpawned, MobSpawingCommand
+            mobSpawingCommand, String fileName) {
         String csvPath = PATH + "/data.csv";
         boolean fileExists = Files.exists(Paths.get(csvPath));
         try (FileWriter writer = new FileWriter(csvPath, true)) { // Append mode

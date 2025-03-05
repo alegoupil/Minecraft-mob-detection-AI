@@ -38,7 +38,7 @@ public class RandomTPCommand implements CommandExecutor {
         return true;
     }
 
-    private Location getSafeRandomLocation(World world) {
+    public Location getSafeRandomLocation(World world) {
         for (int i = 0; i < MAX_TRIES; i++) {
             int x = random.nextInt(RADIUS * 2) - RADIUS;
             int z = random.nextInt(RADIUS * 2) - RADIUS;
@@ -53,6 +53,7 @@ public class RandomTPCommand implements CommandExecutor {
 
     private int findSafeY(World world, int x, int z) {
         if (random.nextFloat() < CAVESPAWNPROBABILITY) { //On cherche un bloc correct verticalement de bas en haut ou de haut en bas, suivant si on veut une cave ou non
+            System.out.println("Cave spawn");
             for (int y = world.getMinHeight(); y < world.getMaxHeight(); y++) {
                 Block block = world.getBlockAt(x, y, z);
                 Block above = block.getRelative(0, 1, 0);
@@ -64,6 +65,7 @@ public class RandomTPCommand implements CommandExecutor {
                 }
             }
         } else {
+            System.out.println("Surface spawn");
             for (int y = world.getMaxHeight(); y > world.getMinHeight(); y--) {
                 Block block = world.getBlockAt(x, y, z);
                 Block above = block.getRelative(0, 1, 0);

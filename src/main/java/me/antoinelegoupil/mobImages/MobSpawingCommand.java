@@ -107,7 +107,7 @@ public class MobSpawingCommand implements CommandExecutor {
 
         //Verify with higher quality
         for (Mob mob : mobSpawned) {
-            System.out.println("Spawned mob: " + mob + " at " + mob.getLocation());
+//            System.out.println("Spawned mob: " + mob + " at " + mob.getLocation());
             int cornersHit = 0;
             HashMap<Vector, Boolean> valid2DPoints = get2DValidPoints(player, mob, world, eyeLocation);
             for (Boolean value : valid2DPoints.values()) {
@@ -115,10 +115,10 @@ public class MobSpawingCommand implements CommandExecutor {
                     cornersHit++;
                 }
             }
-            System.out.println("Corners hit: " + cornersHit);
+//            System.out.println("Corners hit: " + cornersHit);
             if (cornersHit <= MINVISIBLEPERCENTAGE * Math.pow(CHECKPERDIMENSION, 3)) { //A check, je viens de remplacer ^ par Math.pow, avant j'avais des mobs un peu douteux (clairement pas 50% de visible)
                 mob.remove();
-                System.out.println("Removed mob: " + mob + " from " + mob.getLocation());
+//                System.out.println("Removed mob: " + mob + " from " + mob.getLocation());
             } else {
                 filteredMobs.put(mob, valid2DPoints);
             }
@@ -225,33 +225,33 @@ public class MobSpawingCommand implements CommandExecutor {
         return new Vector(finalX, finalY, 0); // Retourne les coordonnées écran
     }
 
-//    public Rectangle getBoundingBox2D(HashMap<Vector, Boolean> is2DPointValid) {
-//        double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
-//        double maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
-//        boolean foundValidPoint = false;
-//
-//        for (Map.Entry<Vector, Boolean> entry : is2DPointValid.entrySet()) {
-//            if (entry.getValue()) { // Seulement les points visibles
-//                Vector point = entry.getKey();
-//                double x = point.getX();
-//                double y = point.getY();
-//
-//                if (x < minX) minX = x;
-//                if (x > maxX) maxX = x;
-//                if (y < minY) minY = y;
-//                if (y > maxY) maxY = y;
-//
-//                foundValidPoint = true;
-//            }
-//        }
-//
-//        if (!foundValidPoint) {
-//            return null; // Aucun point visible, pas de bounding box
-//        }
-//
-//        // Création d'un rectangle englobant
-//        return new Rectangle((int) minX, (int) minY, (int) (maxX - minX), (int) (maxY - minY));
-//    }
+    public Rectangle getBoundingBox2D(HashMap<Vector, Boolean> is2DPointValid) {
+        double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
+        double maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
+        boolean foundValidPoint = false;
+
+        for (Map.Entry<Vector, Boolean> entry : is2DPointValid.entrySet()) {
+            if (entry.getValue()) { // Seulement les points visibles
+                Vector point = entry.getKey();
+                double x = point.getX();
+                double y = point.getY();
+
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+
+                foundValidPoint = true;
+            }
+        }
+
+        if (!foundValidPoint) {
+            return null; // Aucun point visible, pas de bounding box
+        }
+
+        // Création d'un rectangle englobant
+        return new Rectangle((int) minX, (int) minY, (int) (maxX - minX), (int) (maxY - minY));
+    }
 
     private HashMap<Vector, Boolean> get2DValidPoints(Player player, Mob mob, World world, Location playerEye) {
         BoundingBox box = mob.getBoundingBox();
@@ -305,80 +305,80 @@ public class MobSpawingCommand implements CommandExecutor {
         return is2DPointValid;
     }
 
-    // Function to find the largest rectangle containing only 1's in a matrix
-    public static Rectangle getBoundingBox2D(HashMap<Vector, Boolean> is2DPointValid) {
-        //Parcourir tous les vecteurs, mettre tous les x dans un set, tous les y dans un set. Les trier et créer la matrice à partir de ça
-
-        List<Double> xList = new ArrayList<>();
-        List<Double> yList = new ArrayList<>();
-
-        for (Vector vector : is2DPointValid.keySet()) {
-            double x = vector.getX();
-            double y = vector.getY();
-            if (!xList.contains(x)) {
-                xList.add(x);
-            }
-            if (!yList.contains(y)) {
-                yList.add(y);
-            }
-        }
-        Collections.sort(xList);
-        Collections.sort(yList);
-        int rows = xList.size();
-        int cols = yList.size();
-
-        Boolean[][] matrix = new Boolean[rows][cols];
-        for (Vector vector : is2DPointValid.keySet()) {
-            double x = vector.getX();
-            double y = vector.getY();
-            matrix[xList.indexOf(x)][yList.indexOf(y)] = is2DPointValid.get(vector);
-        }
-
-        //Beaucoup de x et y différents parfois on a un y que sur une ligne donc il peut être signalés en 0 sur une autre ligne alors que les 2 points qui l'entourent sont 1
-        //containsKey marche pas à cause de la création d'un nouvel object
-        //+ PUE LA MERDE
-
-        for (int i = 0; i < rows; i++) {
-            Boolean lastTrue = false;
-            for (int j = 0; j < cols; j++) {
-                if (is2DPointValid.containsKey(new Vector(xList.get(i), yList.get(j), 0))) {
-                    if (matrix[i][j]) {
-                        lastTrue = true;
-                    } else {
-                        lastTrue = false;
-                    }
-                } else {
-                    if (lastTrue) {
-                        matrix[i][j] = true;
-                    }
-                }
-            }
-        }
-
-        for (int i = 0; i < cols; i++) {
-            Boolean lastTrue = false;
-            for (int j = 0; j < rows; j++) {
-                if (is2DPointValid.containsKey(new Vector(xList.get(j), yList.get(i), 0))) {
-                    if (matrix[i][j]) {
-                        lastTrue = true;
-                    } else {
-                        lastTrue = false;
-                    }
-                } else {
-                    if (lastTrue) {
-                        matrix[i][j] = true;
-                    } else {
-                        matrix[i][j] = false;
-                    }
-                }
-            }
-        }
-
-        System.out.println(is2DPointValid);
-        for (Boolean[] row : matrix) {
-            System.out.println(Arrays.toString(row));
-        }
-
-        return new Rectangle();
-    }
+//    // Function to find the largest rectangle containing only 1's in a matrix
+//    public static Rectangle getBoundingBox2D(HashMap<Vector, Boolean> is2DPointValid) {
+//        //Parcourir tous les vecteurs, mettre tous les x dans un set, tous les y dans un set. Les trier et créer la matrice à partir de ça
+//
+//        List<Double> xList = new ArrayList<>();
+//        List<Double> yList = new ArrayList<>();
+//
+//        for (Vector vector : is2DPointValid.keySet()) {
+//            double x = vector.getX();
+//            double y = vector.getY();
+//            if (!xList.contains(x)) {
+//                xList.add(x);
+//            }
+//            if (!yList.contains(y)) {
+//                yList.add(y);
+//            }
+//        }
+//        Collections.sort(xList);
+//        Collections.sort(yList);
+//        int rows = xList.size();
+//        int cols = yList.size();
+//
+//        Boolean[][] matrix = new Boolean[rows][cols];
+//        for (Vector vector : is2DPointValid.keySet()) {
+//            double x = vector.getX();
+//            double y = vector.getY();
+//            matrix[xList.indexOf(x)][yList.indexOf(y)] = is2DPointValid.get(vector);
+//        }
+//
+//        //Beaucoup de x et y différents parfois on a un y que sur une ligne donc il peut être signalés en 0 sur une autre ligne alors que les 2 points qui l'entourent sont 1
+//        //containsKey marche pas à cause de la création d'un nouvel object
+//        //+ PUE LA MERDE
+//
+//        for (int i = 0; i < rows; i++) {
+//            Boolean lastTrue = false;
+//            for (int j = 0; j < cols; j++) {
+//                if (is2DPointValid.containsKey(new Vector(xList.get(i), yList.get(j), 0))) {
+//                    if (matrix[i][j]) {
+//                        lastTrue = true;
+//                    } else {
+//                        lastTrue = false;
+//                    }
+//                } else {
+//                    if (lastTrue) {
+//                        matrix[i][j] = true;
+//                    }
+//                }
+//            }
+//        }
+//
+//        for (int i = 0; i < cols; i++) {
+//            Boolean lastTrue = false;
+//            for (int j = 0; j < rows; j++) {
+//                if (is2DPointValid.containsKey(new Vector(xList.get(j), yList.get(i), 0))) {
+//                    if (matrix[i][j]) {
+//                        lastTrue = true;
+//                    } else {
+//                        lastTrue = false;
+//                    }
+//                } else {
+//                    if (lastTrue) {
+//                        matrix[i][j] = true;
+//                    } else {
+//                        matrix[i][j] = false;
+//                    }
+//                }
+//            }
+//        }
+//
+//        System.out.println(is2DPointValid);
+//        for (Boolean[] row : matrix) {
+//            System.out.println(Arrays.toString(row));
+//        }
+//
+//        return new Rectangle();
+//    }
 }
