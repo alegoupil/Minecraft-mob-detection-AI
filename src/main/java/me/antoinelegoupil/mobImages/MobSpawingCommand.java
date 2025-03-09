@@ -111,7 +111,7 @@ public class MobSpawingCommand implements CommandExecutor {
             int cornersHit = 0;
             HashMap<Vector, Boolean> valid2DPoints = get2DValidPoints(player, mob, world, eyeLocation);
             for (Boolean value : valid2DPoints.values()) {
-                if (Boolean.TRUE.equals(value)) {
+                if (value) {
                     cornersHit++;
                 }
             }

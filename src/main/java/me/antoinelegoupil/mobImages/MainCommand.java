@@ -140,11 +140,20 @@ public class MainCommand implements CommandExecutor {
 
         //Il peut y avoir des pb de chargements, jsp trop les raisons, je suppose que c'est pour ça que j'ai mis le runLater mais j'aime pas trop. Si possible remplacer par runTaskTimer + condition
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            takeScreenshot(fileName);
-            System.out.println("Saved screenshot " + fileName);
-            spawnAndWrite(player, mobNum + MOBINCREASE, yaw);
-        }, 2L);
+        Bukkit.getScheduler().runTaskTimer(plugin, task -> {
+            Boolean allMobsSpawned = true;
+            for (Mob mob : mobSpawned.keySet()) {
+                if (!world.getEntities().contains(mob) || !player.canSee(mob) || !player.hasLineOfSight(mob)) {
+                    allMobsSpawned = false;
+                }
+            }
+            if (allMobsSpawned) {
+                task.cancel();
+                takeScreenshot(fileName);
+                System.out.println("Saved screenshot " + fileName);
+                spawnAndWrite(player, mobNum + MOBINCREASE, yaw);
+            }
+        }, 0L, 1L);
 
         writeToCSV(mobSpawned, mobSpawingCommand, fileName);
     }
