@@ -22,7 +22,7 @@ public class MobSpawingCommand implements CommandExecutor {
     private final Random random = new Random();
     private final static int MAX_TRIES = 30;
     private final static int MAX_DISTANCE = 50;
-    private final static int MIN_DISTANCE = 5;
+    private final static int MIN_DISTANCE = 7;
     private final static int VERTICALSPAWNRANGE = 60; //Define the vertical range in witch the mob can be spawned. For exemple, 60 means mobs can spawn from 30° above where you look to 30° below
     private final static int HORIZONTALSPAWNRANGE = 100; //Same for horizontal
     private final static int screenWidth = 2560;

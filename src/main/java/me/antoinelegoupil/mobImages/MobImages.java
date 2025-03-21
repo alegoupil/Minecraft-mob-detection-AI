@@ -33,6 +33,7 @@ public final class MobImages extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerSneak(PlayerToggleSneakEvent event) {
         if (event.isSneaking()) {
+            System.out.println("Sneaking!");
             mainCommand.stopCommand();
         }
     }

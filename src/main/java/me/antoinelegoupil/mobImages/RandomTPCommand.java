@@ -14,7 +14,7 @@ import java.util.Random;
 public class RandomTPCommand implements CommandExecutor {
     private static final int MAX_TRIES = 20; // Nombre max de tentatives
     private static final int RADIUS = 5000; // Rayon de téléportation
-    private static final float CAVESPAWNPROBABILITY = 0.3f;
+    private static final float CAVESPAWNPROBABILITY = 0.2f;
     private final Random random = new Random();
 
     @Override

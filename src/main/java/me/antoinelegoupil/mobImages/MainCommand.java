@@ -31,7 +31,7 @@ public class MainCommand implements CommandExecutor {
 
     private final static String PATH = "C:/Users/Antoi/IdeaProjects/MobImages";
     private final static int MINMOB = 1;
-    private final static int MAXMOB = 10;
+    private final static int MAXMOB = 4;
     private final static int MOBINCREASE = 1;
     private final static float MINYAW = 0.0f;
     private final static float MAXYAW = 360f;
@@ -55,8 +55,6 @@ public class MainCommand implements CommandExecutor {
             stop = false;
 
             Player player = (Player) sender;
-
-            RandomTPCommand randomTPCommand = new RandomTPCommand();
 
             TPThenTurn(player);
         } else {
@@ -115,7 +113,7 @@ public class MainCommand implements CommandExecutor {
                 task.cancel();
                 spawnAndWrite(player, MINMOB, yaw);
             }
-        }, 0L, 1L);
+        }, 10L, 1L);
     }
 
     private void spawnAndWrite(Player player, int mobNum, float yaw) {
@@ -137,25 +135,28 @@ public class MainCommand implements CommandExecutor {
         // Generate a valid and unique filename
         String timestamp = String.valueOf(System.currentTimeMillis()); // current time in milliseconds
         String fileName = "screenshot_" + player.getName() + "_" + timestamp + ".png";
+        System.out.println("BOUCLED !");
 
         //Il peut y avoir des pb de chargements, jsp trop les raisons, je suppose que c'est pour ça que j'ai mis le runLater mais j'aime pas trop. Si possible remplacer par runTaskTimer + condition
 
         Bukkit.getScheduler().runTaskTimer(plugin, task -> {
             Boolean allMobsSpawned = true;
             for (Mob mob : mobSpawned.keySet()) {
-                if (!world.getEntities().contains(mob) || !player.canSee(mob) || !player.hasLineOfSight(mob)) {
+                System.out.println("world contains " + mob + " : " + world.getEntities().contains(mob));
+                System.out.println("player can see " + mob + " : " + player.canSee(mob));
+                System.out.println("player has line of sight " + mob + " : " + player.hasLineOfSight(mob));
+                if (!world.getEntities().contains(mob) || !player.canSee(mob)) {
                     allMobsSpawned = false;
                 }
             }
             if (allMobsSpawned) {
+                System.out.println("Spawned mob " + mobNum);
                 task.cancel();
-                takeScreenshot(fileName);
+                takeScreenshotAndWriteToCSV(fileName, mobSpawingCommand, mobSpawned);
                 System.out.println("Saved screenshot " + fileName);
                 spawnAndWrite(player, mobNum + MOBINCREASE, yaw);
             }
-        }, 0L, 1L);
-
-        writeToCSV(mobSpawned, mobSpawingCommand, fileName);
+        }, 10L, 1L);
     }
 
     private static void writeToCSV(HashMap<Mob, HashMap<Vector, Boolean>> mobSpawned, MobSpawingCommand
@@ -181,11 +182,12 @@ public class MainCommand implements CommandExecutor {
         }
     }
 
-    private static void takeScreenshot(String fileName) {
+    private static void takeScreenshotAndWriteToCSV(String fileName, MobSpawingCommand mobSpawingCommand, HashMap<Mob, HashMap<Vector, Boolean>> mobSpawned) {
         try {
             BufferedImage image = new Robot().createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
             new File(PATH + "/images").mkdirs();
             ImageIO.write(image, "png", new File(PATH + "/images/" + fileName));
+            writeToCSV(mobSpawned, mobSpawingCommand, fileName);
         } catch (Exception e) {
             System.out.println("Exception: " + e);
         }

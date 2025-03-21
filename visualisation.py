@@ -9,7 +9,7 @@ IMAGE_DIR = "./images/"  # Change this to your actual image directory
 df = pd.read_csv(CSV_PATH)
 
 old_image = None
-start_image = 0
+start_image = 24000
 current_image = 0
 
 # Loop through each row and draw the bounding boxes
